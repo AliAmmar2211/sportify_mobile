@@ -71,7 +71,7 @@ class DatabaseHelper {
         description TEXT NOT NULL,
         imageUrl TEXT,
         ownerId TEXT,
-        FOREIGN KEY (ownerId) REFERENCES users (id)
+        FOREIGN KEY (ownerId) REFERENCES users (id) ON DELETE CASCADE
       )
     ''');
 
@@ -79,12 +79,12 @@ class DatabaseHelper {
       CREATE TABLE bookings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         stadiumId INTEGER NOT NULL,
-        userId TEXT,
+        userId TEXT NOT NULL,
         date TEXT NOT NULL,
         timeSlot TEXT NOT NULL,
         userName TEXT NOT NULL,
-        FOREIGN KEY (stadiumId) REFERENCES stadiums (id),
-        FOREIGN KEY (userId) REFERENCES users (id)
+        FOREIGN KEY (stadiumId) REFERENCES stadiums (id) ON DELETE CASCADE,
+        FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE
       )
     ''');
 

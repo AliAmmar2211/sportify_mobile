@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sportify_mobile/data/database_helper.dart';
 import 'package:sportify_mobile/models/stadium.dart';
 import 'package:sportify_mobile/models/booking.dart';
+import 'package:sportify_mobile/providers/auth_provider.dart';
 
 class StadiumProvider with ChangeNotifier {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
@@ -12,24 +13,45 @@ class StadiumProvider with ChangeNotifier {
   List<Booking> get bookings => _bookings;
 
   Future<void> loadStadiums() async {
-    _stadiums = await _dbHelper.getStadiums();
+    final db = await DatabaseHelper.instance.database;
+    final List<Map<String, dynamic>> maps = await db.query('stadiums');
+    
+    _stadiums = List.generate(maps.length, (i) {
+      return Stadium.fromMap(maps[i]);
+    });
     notifyListeners();
   }
 
-  Future<void> addStadium(Stadium stadium, String? ownerId) async {
-    final stadiumWithOwner = Stadium(
-      id: stadium.id,
-      name: stadium.name,
-      location: stadium.location,
-      description: stadium.description,
-      imageUrl: stadium.imageUrl,
+  Future<List<Stadium>> getMyStadiums(String userId) async {
+    final db = await DatabaseHelper.instance.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'stadiums',
+      where: 'ownerId = ?',
+      whereArgs: [userId],
     );
-      if (stadium.id == null) {
-      await _dbHelper.insertStadium(stadiumWithOwner);
-    } else {
-      await _dbHelper.updateStadium(stadiumWithOwner);
-    }
+    
+    return List.generate(maps.length, (i) {
+      return Stadium.fromMap(maps[i]);
+    });
+  }
+
+  Future<void> addStadium(Stadium stadium) async {
+    await _dbHelper.insertStadium(stadium);
     await loadStadiums();
+  }
+  
+  Future<void> loadBookings(int stadiumId) async {
+    final db = await DatabaseHelper.instance.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'bookings',
+      where: 'stadiumId = ?',
+      whereArgs: [stadiumId],
+    );
+    
+    _bookings = List.generate(maps.length, (i) {
+      return Booking.fromMap(maps[i]);
+    });
+    notifyListeners();
   }
 
   Future<void> bookStadium(Booking booking) async {
@@ -37,8 +59,4 @@ class StadiumProvider with ChangeNotifier {
     await loadBookings(booking.stadiumId);
   }
 
-  Future<void> loadBookings(int stadiumId) async {
-    _bookings = await _dbHelper.getBookingsForStadium(stadiumId);
-    notifyListeners();
-  }
 }

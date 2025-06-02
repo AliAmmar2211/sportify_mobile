@@ -6,6 +6,8 @@ import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/add_edit_stadium_screen.dart';
+import 'package:sportify_mobile/screens/booking_screen.dart';
+import 'package:sportify_mobile/models/stadium.dart';
 
 void main() {
   runApp(const MyApp());

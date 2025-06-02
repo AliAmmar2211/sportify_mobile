@@ -103,7 +103,7 @@ class _AddEditStadiumScreenState extends State<AddEditStadiumScreen> {
         ownerId: user?.id,
       );
 
-      Provider.of<StadiumProvider>(context, listen: false).addStadium(stadium, user?.id);
+      Provider.of<StadiumProvider>(context, listen: false).addStadium(stadium);
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -115,6 +115,25 @@ class _AddEditStadiumScreenState extends State<AddEditStadiumScreen> {
         ),
       );
       Navigator.pop(context);
+    }
+  }
+
+  void _saveStadium() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      
+      final user = Provider.of<AuthProvider>(context, listen: false).user;
+      final stadium = Stadium(
+        name: _nameController.text,
+        location: _locationController.text,
+        description: _descriptionController.text,
+        ownerId: user?.id,  // Set the owner ID
+      );
+      
+      await Provider.of<StadiumProvider>(context, listen: false).addStadium(stadium);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 

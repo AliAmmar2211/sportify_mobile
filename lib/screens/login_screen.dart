@@ -122,13 +122,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                TextButton(
-                  onPressed: _clearDatabase,
-                  child: const Text(
-                    'Clear Database (Debug)',
-                    style: TextStyle(fontSize: 12, color: Colors.red),
-                  ),
-                ),
               ],
             ),
           ),
@@ -178,30 +171,6 @@ class _LoginScreenState extends State<LoginScreen> {
           setState(() {
             _isLoading = false;
           });        }
-      }
-    }
-  }
-
-  Future<void> _clearDatabase() async {
-    try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      await authProvider.clearAllUsers();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Database cleared successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error clearing database: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
       }
     }
   }
