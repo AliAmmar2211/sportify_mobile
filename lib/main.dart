@@ -6,8 +6,8 @@ import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/add_edit_stadium_screen.dart';
-import 'package:sportify_mobile/screens/booking_screen.dart';
-import 'package:sportify_mobile/models/stadium.dart';
+// import 'package:sportify_mobile/screens/booking_screen.dart';
+// import 'package:sportify_mobile/models/stadium.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,19 +16,76 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  ThemeData _buildTheme() {
+    const Color primaryGreen = Color(0xFF00B16A);
+    const Color darkBlue = Color(0xFF2C3E50);
+    
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: primaryGreen,
+        primary: primaryGreen,
+        secondary: darkBlue,
+        surface: Colors.white,
+        onSurface: darkBlue,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: primaryGreen,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        centerTitle: true,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryGreen,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: primaryGreen,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Colors.grey),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Colors.grey),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: primaryGreen, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.grey[50],
+      ),
+      cardTheme: CardTheme(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => StadiumProvider()..loadStadiums()),
-      ],
-      child: MaterialApp(
+      ],      child: MaterialApp(
         title: 'Sportify - Stadium Booking',
-        theme: ThemeData(
-          primarySwatch: Colors.green,
-          useMaterial3: true,
-        ),
+        debugShowCheckedModeBanner: false,
+        theme: _buildTheme(),
         home: const AuthWrapper(),
         routes: {
           '/login': (context) => const LoginScreen(),

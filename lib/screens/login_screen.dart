@@ -16,113 +16,156 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Icon(
-                  Icons.stadium,
-                  size: 80,
-                  color: Theme.of(context).primaryColor,
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Sportify',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Stadium Booking App',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 48),
-                CustomTextField(
-                  controller: _emailController,
-                  label: 'Email',
-                  icon: Icons.email,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                CustomTextField(
-                  controller: _passwordController,
-                  label: 'Password',
-                  icon: Icons.lock,
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _signIn,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text(
-                          'Sign In',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                ),
-                const SizedBox(height: 16),                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const RegisterScreen(),
+      backgroundColor: const Color(0xFF2C3E50), // Ensure scaffold has gradient color
+      body: Container(
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF00B16A), // Primary green
+              Color(0xFF2C3E50), // Dark blue
+            ],
+            stops: [0.0, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 60),
+                    // Logo without background
+                    Center(
+                      child: Image.asset(
+                        'assets/logo2.png',
+                        width: 200,
+                        height: 200,
                       ),
-                    );
-                  },
-                  child: const Text(
-                    'Don\'t have an account? Sign Up',
-                    style: TextStyle(fontSize: 16),
-                  ),
+                    ),
+                    const SizedBox(height: 40),
+                    // Welcome text with enhanced styling
+                    Text(
+                      'Welcome Back!',
+                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 32,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Sign in to continue your sports journey',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 48),                    CustomTextField(
+                      controller: _emailController,
+                      label: 'Email',
+                      icon: Icons.email,
+                      isDarkBackground: true,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      controller: _passwordController,
+                      label: 'Password',
+                      icon: Icons.lock,
+                      isDarkBackground: true,
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 32),
+                    ElevatedButton(
+                      onPressed: _isLoading ? null : _signIn,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 3,
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text(
+                              'Sign In',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                            ),
+                    ),
+                    const SizedBox(height: 24),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RegisterScreen(),
+                          ),
+                        );
+                      },
+                      child: RichText(
+                        text: TextSpan(
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          children: const [
+                            TextSpan(
+                              text: "Don't have an account? ",
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                              ),
+                            ),
+                            TextSpan(
+                              text: "Sign Up",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),                    ),
+                    const SizedBox(height: 40),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: _resetDatabase,
-                  child: const Text(
-                    'Reset Database (Debug)',
-                    style: TextStyle(fontSize: 14, color: Colors.red),
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
+              ),
             ),
           ),
         ),
@@ -150,9 +193,13 @@ class _LoginScreenState extends State<LoginScreen> {
         } else {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Invalid email or password'),
-                backgroundColor: Colors.red,
+              SnackBar(
+                content: const Text('Invalid email or password'),
+                backgroundColor: Colors.red[400],
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             );
           }
@@ -162,7 +209,11 @@ class _LoginScreenState extends State<LoginScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: Colors.red[400],
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           );
         }
@@ -170,21 +221,9 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) {
           setState(() {
             _isLoading = false;
-          });        }
+          });
+        }
       }
-    }
-  }
-
-  Future<void> _resetDatabase() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.resetDatabase();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Database has been reset!'),
-          backgroundColor: Colors.green,
-        ),
-      );
     }
   }
 

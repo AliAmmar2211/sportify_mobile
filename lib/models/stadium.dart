@@ -5,6 +5,8 @@ class Stadium {
   final String description;
   final String imageUrl;
   final String? ownerId;
+  final double pricePerHour;
+  final int capacity;
 
   Stadium({
     this.id,
@@ -13,6 +15,8 @@ class Stadium {
     required this.description,
     this.imageUrl = 'assets/default_stadium.jpg',
     this.ownerId,
+    this.pricePerHour = 50.0,
+    this.capacity = 100,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +27,8 @@ class Stadium {
       'description': description,
       'imageUrl': imageUrl,
       'ownerId': ownerId,
+      'pricePerHour': pricePerHour,
+      'capacity': capacity,
     };
   }
 
@@ -32,8 +38,10 @@ class Stadium {
       name: map['name'],
       location: map['location'],
       description: map['description'],
-      imageUrl: map['imageUrl'],
+      imageUrl: map['imageUrl'] ?? 'assets/default_stadium.jpg',
       ownerId: map['ownerId'],
+      pricePerHour: (map['pricePerHour'] ?? 50.0).toDouble(),
+      capacity: map['capacity'] ?? 100,
     );
   }
 }

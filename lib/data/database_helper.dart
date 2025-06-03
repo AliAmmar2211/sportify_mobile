@@ -61,9 +61,7 @@ class DatabaseHelper {
         ownedStadiums TEXT,
         bookings TEXT
       )
-    ''');
-
-    await db.execute('''
+    ''');    await db.execute('''
       CREATE TABLE stadiums (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -71,6 +69,8 @@ class DatabaseHelper {
         description TEXT NOT NULL,
         imageUrl TEXT,
         ownerId TEXT,
+        pricePerHour REAL DEFAULT 50.0,
+        capacity INTEGER DEFAULT 100,
         FOREIGN KEY (ownerId) REFERENCES users (id) ON DELETE CASCADE
       )
     ''');
@@ -116,39 +116,169 @@ class DatabaseHelper {
 
   // Stadium operations
   Future<int> insertStadium(Stadium stadium) async {
-    final db = await instance.database;
-    return await db.insert('stadiums', stadium.toMap());
+    try {
+      if (kIsWeb) {
+        // Web implementation using in-memory storage
+        final stadiumMap = stadium.toMap();
+        stadiumMap['id'] = _nextStadiumId++;
+        _webStadiums.add(stadiumMap);
+        return stadiumMap['id'];
+      }
+      
+      final db = await instance.database;
+      return await db.insert('stadiums', stadium.toMap());
+    } catch (e) {
+      print('Error inserting stadium: $e');
+      rethrow;
+    }
   }
 
-  Future<List<Stadium>> getStadiums() async {
-    final db = await instance.database;
-    final maps = await db.query('stadiums');
-    return maps.map((map) => Stadium.fromMap(map)).toList();
+  Future<int> updateStadium(Stadium stadium) async {
+    try {
+      if (kIsWeb) {
+        // Web implementation using in-memory storage
+        final index = _webStadiums.indexWhere((s) => s['id'] == stadium.id);
+        if (index != -1) {
+          _webStadiums[index] = stadium.toMap();
+          return 1;
+        }
+        return 0;
+      }
+      
+      final db = await instance.database;
+      return await db.update(
+        'stadiums',
+        stadium.toMap(),
+        where: 'id = ?',
+        whereArgs: [stadium.id],
+      );
+    } catch (e) {
+      print('Error updating stadium: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteStadium(int stadiumId) async {
+    try {
+      if (kIsWeb) {
+        _webStadiums.removeWhere((s) => s['id'] == stadiumId);
+        return;
+      }
+      
+      final db = await instance.database;
+      await db.delete(
+        'stadiums',
+        where: 'id = ?',
+        whereArgs: [stadiumId],
+      );
+    } catch (e) {
+      print('Error deleting stadium: $e');
+      rethrow;
+    }
+  }
+
+  Future<Stadium?> getStadiumById(int stadiumId) async {
+    try {
+      if (kIsWeb) {
+        final stadium = _webStadiums.firstWhere(
+          (s) => s['id'] == stadiumId,
+          orElse: () => <String, dynamic>{},
+        );
+        return stadium.isNotEmpty ? Stadium.fromMap(stadium) : null;
+      }
+      
+      final db = await instance.database;
+      final maps = await db.query(
+        'stadiums',
+        where: 'id = ?',
+        whereArgs: [stadiumId],
+      );
+      
+      if (maps.isNotEmpty) {
+        return Stadium.fromMap(maps.first);
+      }
+      return null;
+    } catch (e) {
+      print('Error getting stadium by id: $e');
+      return null;
+    }
+  }
+
+  Future<List<Stadium>> getAllStadiums() async {
+    try {
+      if (kIsWeb) {
+        return _webStadiums.map((s) => Stadium.fromMap(s)).toList();
+      }
+      
+      final db = await instance.database;
+      final List<Map<String, dynamic>> maps = await db.query('stadiums');
+      return maps.map((map) => Stadium.fromMap(map)).toList();
+    } catch (e) {
+      print('Error getting all stadiums: $e');
+      return [];
+    }
   }
 
   // Booking operations
   Future<int> insertBooking(Booking booking) async {
-    final db = await instance.database;
-    return await db.insert('bookings', booking.toMap());
+    try {
+      if (kIsWeb) {
+        final bookingMap = booking.toMap();
+        bookingMap['id'] = _nextBookingId++;
+        _webBookings.add(bookingMap);
+        return bookingMap['id'];
+      }
+      
+      final db = await instance.database;
+      return await db.insert('bookings', booking.toMap());
+    } catch (e) {
+      print('Error inserting booking: $e');
+      rethrow;
+    }
   }
 
-  Future<int> updateStadium(Stadium stadium) async {
-  final db = await instance.database;
-  return await db.update(
-    'stadiums',
-    stadium.toMap(),
-    where: 'id = ?',
-    whereArgs: [stadium.id],
-  );
-}
-  Future<List<Booking>> getBookingsForStadium(int stadiumId) async {
-    final db = await instance.database;
-    final maps = await db.query(
-      'bookings',
-      where: 'stadiumId = ?',
-      whereArgs: [stadiumId],
-    );
-    return maps.map((map) => Booking.fromMap(map)).toList();
+  Future<List<Booking>> getBookingsByStadium(int stadiumId) async {
+    try {
+      if (kIsWeb) {
+        return _webBookings
+            .where((b) => b['stadiumId'] == stadiumId)
+            .map((b) => Booking.fromMap(b))
+            .toList();
+      }
+      
+      final db = await instance.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'bookings',
+        where: 'stadiumId = ?',
+        whereArgs: [stadiumId],
+      );
+      return maps.map((map) => Booking.fromMap(map)).toList();
+    } catch (e) {
+      print('Error getting bookings by stadium: $e');
+      return [];
+    }
+  }
+
+  Future<List<Booking>> getBookingsByUser(String userId) async {
+    try {
+      if (kIsWeb) {
+        return _webBookings
+            .where((b) => b['userId'] == userId)
+            .map((b) => Booking.fromMap(b))
+            .toList();
+      }
+      
+      final db = await instance.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'bookings',
+        where: 'userId = ?',
+        whereArgs: [userId],
+      );
+      return maps.map((map) => Booking.fromMap(map)).toList();
+    } catch (e) {
+      print('Error getting bookings by user: $e');
+      return [];
+    }
   }
 
   // User operations
