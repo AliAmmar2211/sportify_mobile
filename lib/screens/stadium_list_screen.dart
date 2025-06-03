@@ -2,18 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sportify_mobile/models/stadium.dart';
 import 'package:sportify_mobile/providers/stadium_provider.dart';
+import 'package:sportify_mobile/providers/auth_provider.dart';
 import 'package:sportify_mobile/screens/booking_screen.dart';
 import 'package:sportify_mobile/widgets/stadium_card.dart';
 
 class StadiumListScreen extends StatelessWidget {
   final bool showOnlyMine;
 
-  const StadiumListScreen({super.key, required this.showOnlyMine});
-  @override
+  const StadiumListScreen({super.key, required this.showOnlyMine});  @override
   Widget build(BuildContext context) {
     final provider = Provider.of<StadiumProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
+    final currentUser = authProvider.user;
+    
     List<Stadium> filteredStadiums = showOnlyMine
-        ? provider.stadiums.where((s) => s.id! % 2 == 0).toList() // Mock "my" stadiums
+        ? provider.stadiums.where((s) => s.ownerId == currentUser?.id).toList()
         : provider.stadiums;
 
     if (filteredStadiums.isEmpty) {
@@ -75,8 +78,7 @@ class StadiumListScreen extends StatelessWidget {
             sliver: SliverGrid(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  final stadium = filteredStadiums[index];
-                  return Hero(
+                  final stadium = filteredStadiums[index];                  return Hero(
                     tag: 'stadium_${stadium.id}',
                     child: StadiumCard(
                       stadium: stadium,
@@ -109,6 +111,9 @@ class StadiumListScreen extends StatelessWidget {
                                 arguments: stadium,
                               )
                           : null,
+                      onDelete: showOnlyMine
+                          ? () => _showDeleteConfirmation(context, stadium, provider)
+                          : null,
                     ),
                   );
                 },
@@ -123,6 +128,134 @@ class StadiumListScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, Stadium stadium, StadiumProvider provider) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.red,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Delete Stadium',
+                style: TextStyle(
+                  color: Color(0xFF2C3E50),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Are you sure you want to delete "${stadium.name}"?',
+                style: TextStyle(
+                  color: Colors.grey[700],
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'This action cannot be undone and will also delete all associated bookings.',
+                style: TextStyle(
+                  color: Colors.red[600],
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                try {
+                  await provider.deleteStadium(stadium.id!);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            const Icon(Icons.check_circle, color: Colors.white),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Stadium "${stadium.name}" deleted successfully',
+                              style: const TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                        backgroundColor: const Color(0xFF00B16A),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        margin: const EdgeInsets.all(16),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            const Icon(Icons.error, color: Colors.white),
+                            const SizedBox(width: 12),
+                            const Text(
+                              'Failed to delete stadium',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                        backgroundColor: Colors.red,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        margin: const EdgeInsets.all(16),
+                      ),
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Delete',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -5,7 +5,6 @@ import 'package:sportify_mobile/providers/auth_provider.dart';
 import 'package:sportify_mobile/models/stadium.dart';
 import 'package:sportify_mobile/models/booking.dart';
 import 'package:sportify_mobile/widgets/booking_card.dart';
-import 'package:sportify_mobile/widgets/custom_text_field.dart';
 
 class BookingScreen extends StatefulWidget {
   final Stadium stadium;
@@ -28,7 +27,6 @@ class _BookingScreenState extends State<BookingScreen> {
     '15:00 - 17:00',
     '17:00 - 19:00',
   ];
-
   @override
   void initState() {
     super.initState();
@@ -36,6 +34,12 @@ class _BookingScreenState extends State<BookingScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<StadiumProvider>(context, listen: false)
           .loadBookings(widget.stadium.id!);
+      
+      // Auto-populate user name from profile
+      final user = Provider.of<AuthProvider>(context, listen: false).user;
+      if (user != null) {
+        _nameController.text = user.name;
+      }
     });
   }
 
@@ -255,110 +259,158 @@ class _BookingScreenState extends State<BookingScreen> {
                                   ),
                                 ),
                               ],
-                            ),
-                            const SizedBox(height: 24),                            CustomTextField(
-                              controller: _nameController,
-                              label: 'Your Name',
-                              icon: Icons.person,
-                              isDarkBackground: false,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your name';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey[300]!),
-                                      borderRadius: BorderRadius.circular(12),
+                            ),                            const SizedBox(height: 24),
+                            Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[50],
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.person,
+                                      color: const Color(0xFF00B16A),
+                                      size: 20,
                                     ),
-                                    child: InkWell(
-                                      onTap: _pickDate,
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.calendar_today,
-                                              color: const Color(0xFF00B16A),
-                                              size: 20,
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: Text(
-                                                _selectedDate == null
-                                                    ? 'Select Date'
-                                                    : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: _selectedDate == null 
-                                                      ? Colors.grey[600] 
-                                                      : const Color(0xFF2C3E50),
-                                                  fontWeight: _selectedDate == null 
-                                                      ? FontWeight.normal 
-                                                      : FontWeight.w600,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey[300]!),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: DropdownButtonFormField<String>(
-                                      value: _selectedTimeSlot,
-                                      hint: Row(
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Icon(
-                                            Icons.access_time,
-                                            color: const Color(0xFF00B16A),
-                                            size: 20,
-                                          ),
-                                          const SizedBox(width: 12),
                                           Text(
-                                            'Time Slot',
+                                            'Booking Name',
                                             style: TextStyle(
+                                              fontSize: 12,
                                               color: Colors.grey[600],
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            _nameController.text.isNotEmpty 
+                                                ? _nameController.text 
+                                                : 'Loading...',
+                                            style: const TextStyle(
                                               fontSize: 16,
+                                              color: Color(0xFF2C3E50),
+                                              fontWeight: FontWeight.w600,
                                             ),
                                           ),
                                         ],
                                       ),
-                                      items: _timeSlots
-                                          .map((slot) => DropdownMenuItem(
-                                                value: slot,
-                                                child: Text(
-                                                  slot,
-                                                  style: const TextStyle(
-                                                    color: Color(0xFF2C3E50),
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ))
-                                          .toList(),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _selectedTimeSlot = value;
-                                        });
-                                      },
-                                      decoration: const InputDecoration(
-                                        border: InputBorder.none,
-                                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF00B16A).withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
+                                      child: Text(
+                                        'From Profile',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: const Color(0xFF00B16A),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Column(
+                              children: [
+                                Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey[300]!),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: InkWell(
+                                    onTap: _pickDate,
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.calendar_today,
+                                            color: const Color(0xFF00B16A),
+                                            size: 20,
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              _selectedDate == null
+                                                  ? 'Select Date'
+                                                  : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: _selectedDate == null 
+                                                    ? Colors.grey[600] 
+                                                    : const Color(0xFF2C3E50),
+                                                fontWeight: _selectedDate == null 
+                                                    ? FontWeight.normal 
+                                                    : FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey[300]!),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: DropdownButtonFormField<String>(
+                                    value: _selectedTimeSlot,
+                                    hint: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.access_time,
+                                          color: const Color(0xFF00B16A),
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Text(
+                                          'Time Slot',
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    items: _timeSlots
+                                        .map((slot) => DropdownMenuItem(
+                                              value: slot,
+                                              child: Text(
+                                                slot,
+                                                style: const TextStyle(
+                                                  color: Color(0xFF2C3E50),
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ))
+                                        .toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedTimeSlot = value;
+                                      });
+                                    },
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                     ),
                                   ),
                                 ),
@@ -562,14 +614,19 @@ class _BookingScreenState extends State<BookingScreen> {
       });
     }
   }
-
   void _bookStadium() async {
-    if (_nameController.text.isEmpty ||
-        _selectedDate == null ||
-        _selectedTimeSlot == null) {
+    if (_selectedDate == null || _selectedTimeSlot == null) {
       _showErrorDialog(
         title: 'Missing Information',
-        message: 'Please fill all fields to complete your booking.',
+        message: 'Please select both date and time slot to complete your booking.',
+      );
+      return;
+    }
+
+    if (_nameController.text.isEmpty) {
+      _showErrorDialog(
+        title: 'Profile Error',
+        message: 'Unable to get your name from profile. Please try logging out and back in.',
       );
       return;
     }
@@ -621,13 +678,12 @@ class _BookingScreenState extends State<BookingScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             margin: const EdgeInsets.all(16),
-          ),
-        );
+          ),        );
         
         setState(() {
-          _nameController.clear();
           _selectedDate = null;
           _selectedTimeSlot = null;
+          // Don't clear the name as it's from the user's profile
         });
       }
     } catch (e) {

@@ -31,15 +31,14 @@ class DatabaseHelper {
     _database = await _initDB('stadium_booking.db');
     return _database!;
   }
-
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);    return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 2) {
+        if (oldVersion < 3) {
           // Clear existing data and recreate tables
           await db.execute('DROP TABLE IF EXISTS users');
           await db.execute('DROP TABLE IF EXISTS bookings');
@@ -57,11 +56,10 @@ class DatabaseHelper {
         password TEXT NOT NULL,
         name TEXT NOT NULL,
         phoneNumber TEXT,
-        role TEXT NOT NULL,
         ownedStadiums TEXT,
         bookings TEXT
       )
-    ''');    await db.execute('''
+    ''');await db.execute('''
       CREATE TABLE stadiums (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -291,13 +289,11 @@ class DatabaseHelper {
   Future<String> generateUserId() async {
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     return 'user_$timestamp';
-  }
-  Future<User?> createUser({
+  }  Future<User?> createUser({
     required String email,
     required String password,
     required String name,
     String? phoneNumber,
-    UserRole role = UserRole.user,
   }) async {
     try {
       final db = await instance.database;
@@ -320,13 +316,11 @@ class DatabaseHelper {
       
       final userId = await generateUserId();
       final hashedPassword = _hashPassword(password);
-      
-      final user = User(
+        final user = User(
         id: userId,
         email: email,
         name: name,
         phoneNumber: phoneNumber,
-        role: role,
       );
       
       final userMap = user.toMap();

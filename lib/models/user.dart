@@ -1,11 +1,8 @@
-enum UserRole { user, admin }
-
 class User {
   final String id;
   final String email;
   final String name;
   final String? phoneNumber;
-  final UserRole role;
   final List<String> ownedStadiums;
   final List<String> bookings;
 
@@ -14,18 +11,15 @@ class User {
     required this.email,
     required this.name,
     this.phoneNumber,
-    this.role = UserRole.user,
     this.ownedStadiums = const [],
     this.bookings = const [],
   });
-
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'email': email,
       'name': name,
       'phoneNumber': phoneNumber,
-      'role': role.toString(),
       'ownedStadiums': ownedStadiums.join(','),
       'bookings': bookings.join(','),
     };
@@ -37,7 +31,6 @@ class User {
       email: map['email'],
       name: map['name'],
       phoneNumber: map['phoneNumber'],
-      role: map['role'] == 'UserRole.admin' ? UserRole.admin : UserRole.user,
       ownedStadiums: map['ownedStadiums'] != null && map['ownedStadiums'].isNotEmpty 
           ? (map['ownedStadiums'] as String).split(',') 
           : [],

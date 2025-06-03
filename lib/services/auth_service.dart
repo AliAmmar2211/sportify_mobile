@@ -37,14 +37,12 @@ class AuthService {
     String name,
     String? phoneNumber,
   ) async {
-    try {
-      print('Attempting to register user: $email');
+    try {      print('Attempting to register user: $email');
       final user = await _dbHelper.createUser(
         email: email,
         password: password,
         name: name,
         phoneNumber: phoneNumber,
-        role: UserRole.user,
       );
       
       if (user != null) {
@@ -79,14 +77,12 @@ class AuthService {
   // Update user profile
   Future<void> updateUserProfile(String userId, Map<String, dynamic> data) async {
     try {
-      final user = await _dbHelper.getUserById(userId);
-      if (user != null) {
+      final user = await _dbHelper.getUserById(userId);      if (user != null) {
         final updatedUser = User(
           id: user.id,
           email: data['email'] ?? user.email,
           name: data['name'] ?? user.name,
           phoneNumber: data['phoneNumber'] ?? user.phoneNumber,
-          role: user.role,
           ownedStadiums: user.ownedStadiums,
           bookings: user.bookings,
         );

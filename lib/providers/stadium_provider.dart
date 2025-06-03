@@ -44,9 +44,13 @@ class StadiumProvider with ChangeNotifier {
     await _dbHelper.insertStadium(stadium);
     await loadStadiums();
   }
-
   Future<void> updateStadium(Stadium stadium) async {
     await _dbHelper.updateStadium(stadium);
+    await loadStadiums();
+  }
+
+  Future<void> deleteStadium(int stadiumId) async {
+    await _dbHelper.deleteStadium(stadiumId);
     await loadStadiums();
   }
   

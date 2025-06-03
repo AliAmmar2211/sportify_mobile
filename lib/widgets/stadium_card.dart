@@ -5,12 +5,14 @@ class StadiumCard extends StatelessWidget {
   final Stadium stadium;
   final VoidCallback onTap;
   final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const StadiumCard({
     super.key,
     required this.stadium,
     required this.onTap,
     this.onEdit,
+    this.onDelete,
   });
   @override
   Widget build(BuildContext context) {
@@ -44,9 +46,9 @@ class StadiumCard extends StatelessWidget {
                       children: [
                         // Stadium image or default
                         Image.asset(
-                          'assets/default_stadium.jpg',
-                          width: double.infinity,
-                          height: double.infinity,
+                          'assets/logo3.png',
+                          width:140,
+                          height: 140,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Container(
@@ -140,26 +142,49 @@ class StadiumCard extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-          if (onEdit != null)
+          ),          if (onEdit != null || onDelete != null)
             Positioned(
               top: 8,
               right: 8,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.edit,
-                    color: Color(0xFF2C3E50),
-                    size: 20,
-                  ),
-                  onPressed: onEdit,
-                  padding: const EdgeInsets.all(8),
-                  constraints: const BoxConstraints(),
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (onDelete != null)
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                        onPressed: onDelete,
+                        padding: const EdgeInsets.all(6),
+                        constraints: const BoxConstraints(),
+                      ),
+                    ),
+                  if (onEdit != null && onDelete != null) const SizedBox(width: 4),
+                  if (onEdit != null)
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.edit,
+                          color: Color(0xFF2C3E50),
+                          size: 18,
+                        ),
+                        onPressed: onEdit,
+                        padding: const EdgeInsets.all(6),
+                        constraints: const BoxConstraints(),
+                      ),
+                    ),
+                ],
               ),
             ),
         ],

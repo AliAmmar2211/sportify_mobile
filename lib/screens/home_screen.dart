@@ -29,26 +29,11 @@ class HomeScreen extends StatelessWidget {
           ),
           title: Row(
             children: [
-              Container(
-                height: 40,
-                width: 40,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Image.asset(
+              Image.asset(
                   'assets/logo2.png',
-                  fit: BoxFit.contain,
+                  width: 50,
+                  height: 50,
                 ),
-              ),
               const SizedBox(width: 12),
               const Text(
                 'Sportify',
@@ -252,11 +237,9 @@ class HomeScreen extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 16),
-                              _buildProfileItem(Icons.person, 'Name', user?.name ?? 'N/A'),
+                              const SizedBox(height: 16),                              _buildProfileItem(Icons.person, 'Name', user?.name ?? 'N/A'),
                               _buildProfileItem(Icons.email, 'Email', user?.email ?? 'N/A'),
                               _buildProfileItem(Icons.phone, 'Phone', user?.phoneNumber ?? 'Not provided'),
-                              _buildProfileItem(Icons.badge, 'Role', user?.role.toString().split('.').last ?? 'N/A'),
                             ],
                           ),
                         ),
